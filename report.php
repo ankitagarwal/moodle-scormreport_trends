@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /**
- * Core Report class of basic reporting plugin
- * @package    scormreport
- * @subpackage Trends
- * @author     Ankit Kumar Agarwal
+ * Core Report class of graphs reporting plugin
+ *
+ * @package    scormreport_trends
+ * @copyright  2012 Ankit Kumar Agarwal
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -34,22 +34,53 @@ class scorm_trends_report extends scorm_default_report {
      */
     function display($scorm, $cm, $course, $download) {
         global $CFG, $DB, $OUTPUT, $PAGE;
-        $contextmodule= get_context_instance(CONTEXT_MODULE, $cm->id);
+        $contextmodule = context_module::instance($cm->id);
         $scoes = $DB->get_records('scorm_scoes', array("scorm"=>$scorm->id), 'id');
+
+        // Groups are being used, Display a form to select current group
+        if ($groupmode = groups_get_activity_groupmode($cm)) {
+            if (!$download) {
+                groups_print_activity_menu($cm, new moodle_url($PAGE->url));
+            }
+        }
+
+        // find out current group
+        $currentgroup = groups_get_activity_group($cm, true);
+
+        // Group Check
+        if (empty($currentgroup)) {
+            // all users who can attempt scoes
+            if (!$students = get_users_by_capability($contextmodule, 'mod/scorm:savetrack', '', '', '', '', '', '', false)) {
+                $nostudents = true;
+                $allowedlist = '';
+            } else {
+                $allowedlist = array_keys($students);
+            }
+        } else {
+            // all users who can attempt scoes and who are in the currently selected group
+            if (!$groupstudents = get_users_by_capability($contextmodule, 'mod/scorm:savetrack', '', '', '', '', $currentgroup, '', false)) {
+                $nostudents = true;
+                $groupstudents = array();
+            }
+            $allowedlist = array_keys($groupstudents);
+        }
+
+        $params = array();
+        list($usql, $params) = $DB->get_in_or_equal($allowedlist);
+
+        // Construct the SQL
+        $select = 'SELECT DISTINCT '.$DB->sql_concat('st.userid', '\'#\'', 'COALESCE(st.attempt, 0)').' AS uniqueid, ';
+        $select .= 'st.userid AS userid, st.scormid AS scormid, st.attempt AS attempt, st.scoid AS scoid ';
+        $from = 'FROM {scorm_scoes_track} st ';
+        $where = ' WHERE st.scoid = ?';
+
         foreach ($scoes as $sco) {
             if ($sco->launch!='') {
-                $imageurl = new moodle_url('/mod/scorm/report/graphs/graph.php',
-                        array('scoid' => $sco->id, 'cmid' => $cm->id));
-                $graphname = $sco->title;
-                echo $OUTPUT->heading($graphname);
-                // Construct the SQL
-                $select = 'SELECT DISTINCT '.$DB->sql_concat('st.userid', '\'#\'', 'COALESCE(st.attempt, 0)').' AS uniqueid, ';
-                $select .= 'st.userid AS userid, st.scormid AS scormid, st.attempt AS attempt, st.scoid AS scoid ';
-                $from = 'FROM {scorm_scoes_track} st ';
-                $where = ' WHERE st.scoid = ?';
-                $attempts = $DB->get_records_sql($select.$from.$where, array($sco->id));
+                echo $OUTPUT->heading($sco->title);
+                $sqlargs = $params + array($sco->id);
+                $attempts = $DB->get_records_sql($select.$from.$where, $sqlargs);
                 // Determine maximum number to loop through
-                $loop = get_scorm_max_interaction_count($sco->id, $attempts);
+                $loop = get_sco_question_count($sco->id, $attempts);
 
                 $columns = array('element', 'value', 'freq');
                 $headers = array(

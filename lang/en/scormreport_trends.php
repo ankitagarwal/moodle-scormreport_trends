@@ -13,13 +13,11 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
- * Strings for component 'scorm_basic' report plugin
+ * Core Report class of graphs reporting plugin
  *
- * @package    scormreport
- * @subpackage basic
- * @author     Ankit Kumar Agarwal
+ * @package    scormreport_trends
+ * @copyright  2012 Ankit Kumar Agarwal
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -28,6 +26,4 @@ $string['pluginname'] = 'Question Trends';
 $string['value'] = 'Value';
 $string['freq'] = 'Frequency';
 $string['data'] = 'Data';
-
-
 
