@@ -24,16 +24,26 @@
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot.'/mod/scorm/report/trends/lib.php');
 
+/**
+ * Main class for the trends report
+ *
+ * @package    scormreport_trends
+ * @copyright  2012 Ankit Agarwal
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 class scorm_trends_report extends scorm_default_report {
     /**
-     * displays the full report
+     * Displays the trends report
+     *
      * @param stdClass $scorm full SCORM object
      * @param stdClass $cm - full course_module object
      * @param stdClass $course - full course object
      * @param string $download - type of download being requested
+     * @return bool true on success
      */
     function display($scorm, $cm, $course, $download) {
-        global $CFG, $DB, $OUTPUT, $PAGE;
+        global $DB, $OUTPUT, $PAGE;
         $contextmodule = context_module::instance($cm->id);
         $scoes = $DB->get_records('scorm_scoes', array("scorm"=>$scorm->id), 'id');
 

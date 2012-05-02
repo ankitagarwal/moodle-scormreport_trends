@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /**
- * Core Report class of graphs reporting plugin
+ * Strings used by the trends scorm report plugin
  *
  * @package    scormreport_trends
  * @copyright  2012 Ankit Kumar Agarwal
