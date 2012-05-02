@@ -21,9 +21,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+
+$string['data'] = 'Data';
 $string['element'] = 'Elements';
+$string['freq'] = 'Frequency';
+$string['questioncount'] = 'Question count';
 $string['pluginname'] = 'Question Trends';
 $string['value'] = 'Value';
-$string['freq'] = 'Frequency';
-$string['data'] = 'Data';
-
