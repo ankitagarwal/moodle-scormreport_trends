@@ -22,6 +22,7 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
+require_once ('reportlib.php');
 
 /**
  * Main class for the trends report
