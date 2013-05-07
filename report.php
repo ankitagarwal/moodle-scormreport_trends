@@ -46,42 +46,33 @@ class scorm_trends_report extends scorm_default_report {
         $contextmodule = context_module::instance($cm->id);
         $scoes = $DB->get_records('scorm_scoes', array("scorm"=>$scorm->id), 'id');
 
-        // Groups are being used, Display a form to select current group
+        // Groups are being used, Display a form to select current group.
         if ($groupmode = groups_get_activity_groupmode($cm)) {
                 groups_print_activity_menu($cm, new moodle_url($PAGE->url));
         }
 
-        // find out current group
+        // Find out current group.
         $currentgroup = groups_get_activity_group($cm, true);
 
         // Group Check
-        $nostudents = false;
         if (empty($currentgroup)) {
-            // all users who can attempt scoes
-            if (!$students = get_users_by_capability($contextmodule, 'mod/scorm:savetrack', '', '', '', '', '', '', false)) {
-                echo $OUTPUT->notification(get_string('nostudentsyet'));
-                $nostudents = true;
-                $allowedlist = '';
-            } else {
-                $allowedlist = array_keys($students);
-            }
+            // All users who can attempt scoes.
+            $students = get_users_by_capability($contextmodule, 'mod/scorm:savetrack', 'u.id' , '', '', '', '', '', false);
+            $allowedlist = empty($students) ? array() : array_keys($students);
         } else {
-            // all users who can attempt scoes and who are in the currently selected group
-            if (!$groupstudents = get_users_by_capability($contextmodule, 'mod/scorm:savetrack', '', '', '', '', $currentgroup, '', false)) {
-                echo $OUTPUT->notification(get_string('nostudentsingroup'));
-                $nostudents = true;
-                $groupstudents = array();
-            }
-            $allowedlist = array_keys($groupstudents);
+            // All users who can attempt scoes and who are in the currently selected group.
+            $groupstudents = get_users_by_capability($contextmodule, 'mod/scorm:savetrack', 'u.id', '', '', '', $currentgroup, '', false);
+            $allowedlist = empty($groupstudents) ? array() : array_keys($groupstudents);
         }
-        // Do this only if we have students to report
-        if(!$nostudents) {
+
+        // Do this only if we have students to report.
+        if(!empty($allowedlist)) {
 
             $params = array();
             list($usql, $params) = $DB->get_in_or_equal($allowedlist);
 
 
-            // Construct the SQL
+            // Construct the SQL.
             $select = 'SELECT DISTINCT '.$DB->sql_concat('st.userid', '\'#\'', 'COALESCE(st.attempt, 0)').' AS uniqueid, ';
             $select .= 'st.userid AS userid, st.scormid AS scormid, st.attempt AS attempt, st.scoid AS scoid ';
             $from = 'FROM {scorm_scoes_track} st ';
