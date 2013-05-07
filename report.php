@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of SCORM trends report for Moodle
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Core Report class of graphs reporting plugin
  *
  * @package    scormreport_trends
- * @copyright  2012 Ankit Kumar Agarwal
+ * @copyright  2013 Ankit Kumar Agarwal
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
  * Main class for the trends report
  *
  * @package    scormreport_trends
- * @copyright  2012 Ankit Agarwal
+ * @copyright  2013 Ankit Agarwal
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

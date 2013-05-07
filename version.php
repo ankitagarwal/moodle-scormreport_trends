@@ -13,18 +13,20 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * Strings used by the trends scorm report plugin
+ * Plugin version info
  *
  * @package    scormreport_trends
- * @copyright  2013 Ankit Kumar Agarwal
+ * @copyright  2013 Ankit Agarwal
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
 
-$string['data'] = 'Data';
-$string['element'] = 'Elements';
-$string['freq'] = 'Frequency';
-$string['questioncount'] = 'Question count';
-$string['pluginname'] = 'Question Trends';
-$string['value'] = 'Value';
+$plugin->version   = 2013050700;
+$plugin->requires  = 2012062500;
+$plugin->maturity  = MATURITY_STABLE;
+$plugin->release   = "1.0";
+$plugin->component = 'scormreport_trends'; // Full name of the plugin (used for diagnostics)
+
