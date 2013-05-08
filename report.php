@@ -144,7 +144,7 @@ class scorm_trends_report extends scorm_default_report {
                         foreach ($tabledata as $interaction => $rowinst) {
                             foreach ($rowinst as $element => $data) {
                                 foreach ($data as $value => $freq) {
-                                    $formated_data = array("Question $interaction ", " - <b>$element</b>", $value, $freq);
+                                    $formated_data = array(get_string('questionfreq', 'scormreport_trends', $interaction), " - <b>$element</b>", $value, $freq);
                                     $table->add_data($formated_data);
                                 }
                             }
