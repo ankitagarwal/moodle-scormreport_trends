@@ -26,5 +26,5 @@ $string['data'] = 'Data';
 $string['element'] = 'Elements';
 $string['freq'] = 'Frequency';
 $string['questioncount'] = 'Question count';
-$string['pluginname'] = 'Question Trends';
+$string['pluginname'] = 'Question trends';
 $string['value'] = 'Value';

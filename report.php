@@ -67,7 +67,7 @@ class scorm_trends_report extends scorm_default_report {
         }
 
         // Do this only if we have students to report.
-        if(!empty($allowedlist)) {
+        if (!empty($allowedlist)) {
 
             $params = array();
             list($usql, $params) = $DB->get_in_or_equal($allowedlist);
@@ -99,39 +99,38 @@ class scorm_trends_report extends scorm_default_report {
                     $table->define_columns($columns);
                     $table->define_headers($headers);
                     $table->define_baseurl($PAGE->url);
+
+                    // Don't show repeated data.
+                    $table->column_suppress('question');
+                    $table->column_suppress('element');
+
                     $table->setup();
 
                     for ($i = 0; $i < $loop; $i++) {
                         $rowdata = array(
-                            'type' => array(array(), array()),
-                            'student_response' => array(array(), array()),
-                            'result' => array(array(), array()));
+                            'type' => array(),
+                            'student_response' => array(),
+                            'result' => array());
                         foreach ($attempts as $attempt) {
                             if ($trackdata = scorm_get_tracks($sco->id, $attempt->userid, $attempt->attempt)) {
                                 foreach ($trackdata as $element => $value) {
                                     if (stristr($element, "cmi.interactions_$i.type") !== false) {
-                                        $key = array_search($value, $rowdata['type'][0]);
-                                        if ($key !== false) {
-                                            $rowdata['type'][1][$key]++;
+                                        if (isset($rowdata['type'][$value])) {
+                                            $rowdata['type'][$value]++;
                                         } else {
-                                            $rowdata['type'][0][] = $value;
-                                            $rowdata['type'][1][] = 1;
+                                            $rowdata['type'][$value] = 1;
                                         }
                                     } else if (stristr($element, "cmi.interactions_$i.student_response") !== false) {
-                                        $key = array_search($value, $rowdata['student_response'][0]);
-                                        if ($key !== false) {
-                                            $rowdata['student_response'][1][$key]++;
+                                        if (isset($rowdata['student_response'][$value])) {
+                                            $rowdata['student_response'][$value]++;
                                         } else {
-                                            $rowdata['student_response'][0][] = $value;
-                                            $rowdata['student_response'][1][] = 1;
+                                            $rowdata['student_response'][$value] = 1;
                                         }
                                     } else if (stristr($element, "cmi.interactions_$i.result") !== false) {
-                                        $key = array_search($value, $rowdata['result'][0]);
-                                        if ($key !== false) {
-                                            $rowdata['result'][1][$key]++;
+                                        if (isset($rowdata['result'][$value])) {
+                                            $rowdata['result'][$value]++;
                                         } else {
-                                            $rowdata['result'][0][] = $value;
-                                            $rowdata['result'][1][] = 1;
+                                            $rowdata['result'][$value] = 1;
                                         }
                                     }
                                 }
@@ -143,17 +142,9 @@ class scorm_trends_report extends scorm_default_report {
                     $formated_data = array();
                     if (!empty($tabledata)) {
                         foreach ($tabledata as $interaction => $rowinst) {
-                            $firstelement = 1;
                             foreach ($rowinst as $element => $data) {
-                                if($firstelement) {
-                                    $formated_data = array("Question $interaction ", " - <b>$element</b>", '', '');
-                                    $firstelement = 0;
-                                } else {
-                                    $formated_data = array('', " - <b>$element</b>", '', '');
-                                }
-                                $table->add_data($formated_data);
-                                foreach ($data[0] as $index => $value) {
-                                    $formated_data = array('', '', $value, $data[1][$index]);
+                                foreach ($data as $value => $freq) {
+                                    $formated_data = array("Question $interaction ", " - <b>$element</b>", $value, $freq);
                                     $table->add_data($formated_data);
                                 }
                             }
