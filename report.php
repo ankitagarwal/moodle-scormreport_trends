@@ -22,7 +22,7 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-require_once ('reportlib.php');
+require_once('reportlib.php');
 
 /**
  * Main class for the trends report
@@ -42,10 +42,10 @@ class scorm_trends_report extends scorm_default_report {
      * @param string $download - type of download being requested
      * @return bool true on success
      */
-    function display($scorm, $cm, $course, $download) {
+    public function display($scorm, $cm, $course, $download) {
         global $DB, $OUTPUT, $PAGE;
         $contextmodule = context_module::instance($cm->id);
-        $scoes = $DB->get_records('scorm_scoes', array("scorm"=>$scorm->id), 'id');
+        $scoes = $DB->get_records('scorm_scoes', array("scorm" => $scorm->id), 'id');
 
         // Groups are being used, Display a form to select current group.
         if ($groupmode = groups_get_activity_groupmode($cm)) {
@@ -55,7 +55,7 @@ class scorm_trends_report extends scorm_default_report {
         // Find out current group.
         $currentgroup = groups_get_activity_group($cm, true);
 
-        // Group Check
+        // Group Check.
         if (empty($currentgroup)) {
             // All users who can attempt scoes.
             $students = get_users_by_capability($contextmodule, 'mod/scorm:savetrack', 'u.id' , '', '', '', '', '', false);
@@ -69,9 +69,7 @@ class scorm_trends_report extends scorm_default_report {
         // Do this only if we have students to report.
         if (!empty($allowedlist)) {
 
-            $params = array();
             list($usql, $params) = $DB->get_in_or_equal($allowedlist);
-
 
             // Construct the SQL.
             $select = 'SELECT DISTINCT '.$DB->sql_concat('st.userid', '\'#\'', 'COALESCE(st.attempt, 0)').' AS uniqueid, ';
@@ -80,11 +78,11 @@ class scorm_trends_report extends scorm_default_report {
             $where = ' WHERE st.userid ' .$usql. ' and st.scoid = ?';
 
             foreach ($scoes as $sco) {
-                if ($sco->launch!='') {
+                if ($sco->launch != '') {
                     echo $OUTPUT->heading($sco->title);
                     $sqlargs = array_merge($params, array($sco->id));
                     $attempts = $DB->get_records_sql($select.$from.$where, $sqlargs);
-                    // Determine maximum number to loop through
+                    // Determine maximum number to loop through.
                     $loop = get_sco_question_count($sco->id, $attempts);
 
                     $columns = array('question', 'element', 'value', 'freq');
@@ -135,7 +133,7 @@ class scorm_trends_report extends scorm_default_report {
                                     }
                                 }
                             }
-                        }// End of foreach loop of attempts
+                        } // End of foreach loop of attempts.
                         $tabledata[] = $rowdata;
                     }// End of foreach loop of interactions loop
                     // Format data for tables and generate output.
@@ -150,7 +148,7 @@ class scorm_trends_report extends scorm_default_report {
                             }
                         }
                         $table->finish_output();
-                    }// End of generating output
+                    } // End of generating output.
                 }
             }
         } else {
