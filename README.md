@@ -18,6 +18,7 @@ STABLE
 Change log
 =====================
 * 2013050700 - First public release - 1.0
+* 2014032000 - Release for Moodle 2.7 - 1.1
 
 About Author
 =====================

@@ -24,9 +24,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2013050700;
+$plugin->version   = 2014032000;
 $plugin->requires  = 2012062500;
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = "1.0";
+$plugin->release   = "1.1";
 $plugin->component = 'scormreport_trends'; // Full name of the plugin (used for diagnostics)
 
