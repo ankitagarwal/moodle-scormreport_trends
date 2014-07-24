@@ -21,6 +21,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace scormreport_trends;
+
 defined('MOODLE_INTERNAL') || die();
 require_once('reportlib.php');
 
@@ -32,19 +34,19 @@ require_once('reportlib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class scorm_trends_report extends scorm_default_report {
+class report extends \mod_scorm\report {
     /**
      * Displays the trends report
      *
-     * @param stdClass $scorm full SCORM object
-     * @param stdClass $cm - full course_module object
-     * @param stdClass $course - full course object
+     * @param \stdClass $scorm full SCORM object
+     * @param \stdClass $cm - full course_module object
+     * @param \stdClass $course - full course object
      * @param string $download - type of download being requested
      * @return bool true on success
      */
     public function display($scorm, $cm, $course, $download) {
         global $DB, $OUTPUT, $PAGE;
-        $contextmodule = context_module::instance($cm->id);
+        $contextmodule = \context_module::instance($cm->id);
         $scoes = $DB->get_records('scorm_scoes', array("scorm" => $scorm->id), 'id');
 
         // Groups are being used, Display a form to select current group.
@@ -92,7 +94,7 @@ class scorm_trends_report extends scorm_default_report {
                         get_string('value', 'scormreport_trends'),
                         get_string('freq', 'scormreport_trends'));
 
-                    $table = new flexible_table('mod-scorm-trends-report-'.$sco->id);
+                    $table = new \flexible_table('mod-scorm-trends-report-'.$sco->id);
 
                     $table->define_columns($columns);
                     $table->define_headers($headers);
