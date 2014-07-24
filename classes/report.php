@@ -17,7 +17,7 @@
  * Core Report class of graphs reporting plugin
  *
  * @package    scormreport_trends
- * @copyright  2013 Ankit Kumar Agarwal
+ * @copyright  2013 onwards Ankit Kumar Agarwal
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
  * Main class for the trends report
  *
  * @package    scormreport_trends
- * @copyright  2013 Ankit Agarwal
+ * @copyright  2013 onwards Ankit Agarwal
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class report extends \mod_scorm\report {

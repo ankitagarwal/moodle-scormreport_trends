@@ -13,14 +13,14 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Strings used by the trends scorm report plugin
  *
  * @package    scormreport_trends
- * @copyright  2013 Ankit Kumar Agarwal
+ * @copyright  2013 onwards Ankit Kumar Agarwal
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 
 $string['data'] = 'Data';
 $string['element'] = 'Elements';

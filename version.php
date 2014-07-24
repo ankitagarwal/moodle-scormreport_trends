@@ -18,7 +18,7 @@
  * Plugin version info
  *
  * @package    scormreport_trends
- * @copyright  2013 Ankit Agarwal
+ * @copyright  2013 onwards Ankit Agarwal
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
