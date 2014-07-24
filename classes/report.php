@@ -24,7 +24,6 @@
 namespace scormreport_trends;
 
 defined('MOODLE_INTERNAL') || die();
-require_once('reportlib.php');
 
 /**
  * Main class for the trends report
@@ -33,7 +32,6 @@ require_once('reportlib.php');
  * @copyright  2013 Ankit Agarwal
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 class report extends \mod_scorm\report {
     /**
      * Displays the trends report
@@ -51,7 +49,7 @@ class report extends \mod_scorm\report {
 
         // Groups are being used, Display a form to select current group.
         if ($groupmode = groups_get_activity_groupmode($cm)) {
-                groups_print_activity_menu($cm, new moodle_url($PAGE->url));
+                groups_print_activity_menu($cm, new \moodle_url($PAGE->url));
         }
 
         // Find out current group.
@@ -85,7 +83,7 @@ class report extends \mod_scorm\report {
                     $sqlargs = array_merge($params, array($sco->id));
                     $attempts = $DB->get_records_sql($select.$from.$where, $sqlargs);
                     // Determine maximum number to loop through.
-                    $loop = get_sco_question_count($sco->id, $attempts);
+                    $loop = self::get_sco_question_count($sco->id);
 
                     $columns = array('question', 'element', 'value', 'freq');
                     $headers = array(
@@ -139,13 +137,14 @@ class report extends \mod_scorm\report {
                         $tabledata[] = $rowdata;
                     }// End of foreach loop of interactions loop
                     // Format data for tables and generate output.
-                    $formated_data = array();
+                    $formateddata = array();
                     if (!empty($tabledata)) {
                         foreach ($tabledata as $interaction => $rowinst) {
                             foreach ($rowinst as $element => $data) {
                                 foreach ($data as $value => $freq) {
-                                    $formated_data = array(get_string('questionfreq', 'scormreport_trends', $interaction), " - <b>$element</b>", $value, $freq);
-                                    $table->add_data($formated_data);
+                                    $formateddata = array(get_string('questionfreq', 'scormreport_trends', $interaction),
+                                                          " - <b>$element</b>", $value, $freq);
+                                    $table->add_data($formateddata);
                                 }
                             }
                         }
@@ -157,5 +156,35 @@ class report extends \mod_scorm\report {
             echo $OUTPUT->notification(get_string('noactivity', 'scorm'));
         }
         return true;
+    }
+
+    /**
+     * Returns The maximum numbers of Questions associated with a Sco object
+     *
+     * @param int $scoid Sco ID
+     * @return int an integer representing the question count
+     */
+    protected static function get_sco_question_count($scoid) {
+        global $DB;
+        $count = 0;
+        $params = array();
+        $select = "scoid = ? AND ";
+        $select .= $DB->sql_like("element", "?", false);
+        $params[] = $scoid;
+        $params[] = "cmi.interactions_%.id";
+        $rs = $DB->get_recordset_select("scorm_scoes_track", $select, $params, 'element');
+        $keywords = array("cmi.interactions_", ".id");
+        if ($rs->valid()) {
+            foreach ($rs as $record) {
+                $num = trim(str_ireplace($keywords, '', $record->element));
+                if (is_numeric($num) && $num > $count) {
+                    $count = $num;
+                }
+            }
+            // Done as interactions start at 0 (do only if we have something to report).
+            $count++;
+        }
+        $rs->close(); // Closing recordset.
+        return $count;
     }
 }
