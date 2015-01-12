@@ -19,6 +19,7 @@ Change log
 =====================
 * 2013050700 - First public release - 1.0
 * 2014032000 - Release for Moodle 2.7 - 1.1
+* 2014051204 - Release for Moodle 2.8 - 1.2 (Use autoloading, code cleanup, remove reportlib.php)
 
 About Author
 =====================
@@ -38,4 +39,4 @@ GPL 3 or later
 
 Report bugs
 =====================
-http://tracker.moodle.org/browse/CONTRIB/component/12336
+<https://github.com/ankitagarwal/moodle-scormreport_trends/issues>

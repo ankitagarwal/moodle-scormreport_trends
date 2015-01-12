@@ -18,15 +18,15 @@
  * Plugin version info
  *
  * @package    scormreport_trends
- * @copyright  2013 onwards Ankit Agarwal
+ * @copyright  2013 onwards Ankit Agarwal <ankit.agrr@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2014032000;
-$plugin->requires  = 2012062500;
+$plugin->version   = 2015011200;
+$plugin->requires  = 2014051204; // Supports 2.7 and above.
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = "1.1";
+$plugin->release   = "1.2";
 $plugin->component = 'scormreport_trends'; // Full name of the plugin (used for diagnostics)
 
