@@ -24,8 +24,11 @@ Change log
 About Author
 =====================
 Ankit Kumar Agarwal
+
 Moodle HQ developer
+
 https://github.com/ankitagarwal
+
 http://ankitkumaragarwal.com
 
 Credits
