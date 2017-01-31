@@ -85,24 +85,7 @@ class report extends \mod_scorm\report {
                     // Determine maximum number to loop through.
                     $loop = self::get_sco_question_count($sco->id);
 
-                    $columns = array('question', 'element', 'value', 'freq');
-                    $headers = array(
-                        get_string('questioncount', 'scormreport_trends'),
-                        get_string('element', 'scormreport_trends'),
-                        get_string('value', 'scormreport_trends'),
-                        get_string('freq', 'scormreport_trends'));
-
-                    $table = new \flexible_table('mod-scorm-trends-report-'.$sco->id);
-
-                    $table->define_columns($columns);
-                    $table->define_headers($headers);
-                    $table->define_baseurl($PAGE->url);
-
-                    // Don't show repeated data.
-                    $table->column_suppress('question');
-                    $table->column_suppress('element');
-
-                    $table->setup();
+                    $table = new table('mod-scorm-trends-report-'.$sco->id);
 
                     for ($i = 0; $i < $loop; $i++) {
                         $rowdata = array(
