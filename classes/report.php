@@ -44,7 +44,7 @@ class report extends \mod_scorm\report {
      */
     public function display($scorm, $cm, $course, $download) {
         global $DB, $OUTPUT, $PAGE;
-        $contextmodule = \context_module::instance($cm->id);
+
         $scoes = $DB->get_records('scorm_scoes', array("scorm" => $scorm->id), 'id');
 
         // Groups are being used, Display a form to select current group.
@@ -52,91 +52,80 @@ class report extends \mod_scorm\report {
                 groups_print_activity_menu($cm, new \moodle_url($PAGE->url));
         }
 
-        // Find out current group.
-        $currentgroup = groups_get_activity_group($cm, true);
+        $allowedlist = self::get_students_allowedlist($cm);
 
-        // Group Check.
-        if (empty($currentgroup)) {
-            // All users who can attempt scoes.
-            $students = get_users_by_capability($contextmodule, 'mod/scorm:savetrack', 'u.id' , '', '', '', '', '', false);
-            $allowedlist = empty($students) ? array() : array_keys($students);
-        } else {
-            // All users who can attempt scoes and who are in the currently selected group.
-            $groupstudents = get_users_by_capability($contextmodule, 'mod/scorm:savetrack', 'u.id', '', '', '', $currentgroup, '', false);
-            $allowedlist = empty($groupstudents) ? array() : array_keys($groupstudents);
+        if (empty($allowedlist)) {
+            // No students to report.
+            echo $OUTPUT->notification(get_string('noactivity', 'scorm'));
+            return true;
         }
 
         // Do this only if we have students to report.
-        if (!empty($allowedlist)) {
+        list($usql, $params) = $DB->get_in_or_equal($allowedlist);
 
-            list($usql, $params) = $DB->get_in_or_equal($allowedlist);
+        // Construct the SQL.
+        $select = 'SELECT DISTINCT '.$DB->sql_concat('st.userid', '\'#\'', 'COALESCE(st.attempt, 0)').' AS uniqueid, ';
+        $select .= 'st.userid AS userid, st.scormid AS scormid, st.attempt AS attempt, st.scoid AS scoid ';
+        $from = 'FROM {scorm_scoes_track} st ';
+        $where = ' WHERE st.userid ' .$usql. ' and st.scoid = ?';
 
-            // Construct the SQL.
-            $select = 'SELECT DISTINCT '.$DB->sql_concat('st.userid', '\'#\'', 'COALESCE(st.attempt, 0)').' AS uniqueid, ';
-            $select .= 'st.userid AS userid, st.scormid AS scormid, st.attempt AS attempt, st.scoid AS scoid ';
-            $from = 'FROM {scorm_scoes_track} st ';
-            $where = ' WHERE st.userid ' .$usql. ' and st.scoid = ?';
+        foreach ($scoes as $sco) {
+            if ($sco->launch != '') {
+                echo $OUTPUT->heading($sco->title);
+                $sqlargs = array_merge($params, array($sco->id));
+                $attempts = $DB->get_records_sql($select.$from.$where, $sqlargs);
+                // Determine maximum number to loop through.
+                $loop = self::get_sco_question_count($sco->id);
 
-            foreach ($scoes as $sco) {
-                if ($sco->launch != '') {
-                    echo $OUTPUT->heading($sco->title);
-                    $sqlargs = array_merge($params, array($sco->id));
-                    $attempts = $DB->get_records_sql($select.$from.$where, $sqlargs);
-                    // Determine maximum number to loop through.
-                    $loop = self::get_sco_question_count($sco->id);
+                $table = new table('mod-scorm-trends-report-'.$sco->id);
 
-                    $table = new table('mod-scorm-trends-report-'.$sco->id);
-
-                    for ($i = 0; $i < $loop; $i++) {
-                        $rowdata = array(
-                            'type' => array(),
-                            'student_response' => array(),
-                            'result' => array());
-                        foreach ($attempts as $attempt) {
-                            if ($trackdata = scorm_get_tracks($sco->id, $attempt->userid, $attempt->attempt)) {
-                                foreach ($trackdata as $element => $value) {
-                                    if (stristr($element, "cmi.interactions_$i.type") !== false) {
-                                        if (isset($rowdata['type'][$value])) {
-                                            $rowdata['type'][$value]++;
-                                        } else {
-                                            $rowdata['type'][$value] = 1;
-                                        }
-                                    } else if (stristr($element, "cmi.interactions_$i.student_response") !== false) {
-                                        if (isset($rowdata['student_response'][$value])) {
-                                            $rowdata['student_response'][$value]++;
-                                        } else {
-                                            $rowdata['student_response'][$value] = 1;
-                                        }
-                                    } else if (stristr($element, "cmi.interactions_$i.result") !== false) {
-                                        if (isset($rowdata['result'][$value])) {
-                                            $rowdata['result'][$value]++;
-                                        } else {
-                                            $rowdata['result'][$value] = 1;
-                                        }
+                for ($i = 0; $i < $loop; $i++) {
+                    $rowdata = array(
+                        'type' => array(),
+                        'student_response' => array(),
+                        'result' => array());
+                    foreach ($attempts as $attempt) {
+                        if ($trackdata = scorm_get_tracks($sco->id, $attempt->userid, $attempt->attempt)) {
+                            foreach ($trackdata as $element => $value) {
+                                if (stristr($element, "cmi.interactions_$i.type") !== false) {
+                                    if (isset($rowdata['type'][$value])) {
+                                        $rowdata['type'][$value]++;
+                                    } else {
+                                        $rowdata['type'][$value] = 1;
+                                    }
+                                } else if (stristr($element, "cmi.interactions_$i.student_response") !== false) {
+                                    if (isset($rowdata['student_response'][$value])) {
+                                        $rowdata['student_response'][$value]++;
+                                    } else {
+                                        $rowdata['student_response'][$value] = 1;
+                                    }
+                                } else if (stristr($element, "cmi.interactions_$i.result") !== false) {
+                                    if (isset($rowdata['result'][$value])) {
+                                        $rowdata['result'][$value]++;
+                                    } else {
+                                        $rowdata['result'][$value] = 1;
                                     }
                                 }
                             }
-                        } // End of foreach loop of attempts.
-                        $tabledata[] = $rowdata;
-                    }// End of foreach loop of interactions loop
-                    // Format data for tables and generate output.
-                    $formateddata = array();
-                    if (!empty($tabledata)) {
-                        foreach ($tabledata as $interaction => $rowinst) {
-                            foreach ($rowinst as $element => $data) {
-                                foreach ($data as $value => $freq) {
-                                    $formateddata = array(get_string('questionfreq', 'scormreport_trends', $interaction),
-                                                          " - <b>$element</b>", $value, $freq);
-                                    $table->add_data($formateddata);
-                                }
+                        }
+                    } // End of foreach loop of attempts.
+                    $tabledata[] = $rowdata;
+                }// End of foreach loop of interactions loop
+                // Format data for tables and generate output.
+                $formateddata = array();
+                if (!empty($tabledata)) {
+                    foreach ($tabledata as $interaction => $rowinst) {
+                        foreach ($rowinst as $element => $data) {
+                            foreach ($data as $value => $freq) {
+                                $formateddata = array(get_string('questionfreq', 'scormreport_trends', $interaction),
+                                                      " - <b>$element</b>", $value, $freq);
+                                $table->add_data($formateddata);
                             }
                         }
-                        $table->finish_output();
-                    } // End of generating output.
-                }
+                    }
+                    $table->finish_output();
+                } // End of generating output.
             }
-        } else {
-            echo $OUTPUT->notification(get_string('noactivity', 'scorm'));
         }
         return true;
     }
@@ -169,5 +158,31 @@ class report extends \mod_scorm\report {
         }
         $rs->close(); // Closing recordset.
         return $count;
+    }
+
+    /**
+     * Get list of students allowed.
+     *
+     * @param $cm
+     * @return array
+     */
+    protected static function get_students_allowedlist($cm) {
+
+        $contextmodule = \context_module::instance($cm->id);
+        // Find out current group.
+        $currentgroup = groups_get_activity_group($cm, true);
+
+        // Group Check.
+        if (empty($currentgroup)) {
+            // All users who can attempt scoes.
+            $students = get_users_by_capability($contextmodule, 'mod/scorm:savetrack', 'u.id' , '', '', '', '', '', false);
+            $allowedlist = empty($students) ? array() : array_keys($students);
+        } else {
+            // All users who can attempt scoes and who are in the currently selected group.
+            $groupstudents = get_users_by_capability($contextmodule, 'mod/scorm:savetrack', 'u.id', '', '', '', $currentgroup, '', false);
+            $allowedlist = empty($groupstudents) ? array() : array_keys($groupstudents);
+        }
+
+        return $allowedlist;
     }
 }
