@@ -73,57 +73,7 @@ class report extends \mod_scorm\report {
             echo $OUTPUT->heading($sco->title);
             $sqlargs = array_merge($params, array($sco->id));
             $attempts = $DB->get_records_sql($select.$from.$where, $sqlargs);
-            // Determine maximum number to loop through.
-            $loop = self::get_sco_question_count($sco->id);
-
-            $table = new table('mod-scorm-trends-report-'.$sco->id);
-
-            for ($i = 0; $i < $loop; $i++) {
-                $rowdata = array(
-                    'type' => array(),
-                    'student_response' => array(),
-                    'result' => array());
-                foreach ($attempts as $attempt) {
-                    if ($trackdata = scorm_get_tracks($sco->id, $attempt->userid, $attempt->attempt)) {
-                        foreach ($trackdata as $element => $value) {
-                            if (stristr($element, "cmi.interactions_$i.type") !== false) {
-                                if (isset($rowdata['type'][$value])) {
-                                    $rowdata['type'][$value]++;
-                                } else {
-                                    $rowdata['type'][$value] = 1;
-                                }
-                            } else if (stristr($element, "cmi.interactions_$i.student_response") !== false) {
-                                if (isset($rowdata['student_response'][$value])) {
-                                    $rowdata['student_response'][$value]++;
-                                } else {
-                                    $rowdata['student_response'][$value] = 1;
-                                }
-                            } else if (stristr($element, "cmi.interactions_$i.result") !== false) {
-                                if (isset($rowdata['result'][$value])) {
-                                    $rowdata['result'][$value]++;
-                                } else {
-                                    $rowdata['result'][$value] = 1;
-                                }
-                            }
-                        }
-                    }
-                } // End of foreach loop of attempts.
-                $tabledata[] = $rowdata;
-            }// End of foreach loop of interactions loop
-            // Format data for tables and generate output.
-            $formateddata = array();
-            if (!empty($tabledata)) {
-                foreach ($tabledata as $interaction => $rowinst) {
-                    foreach ($rowinst as $element => $data) {
-                        foreach ($data as $value => $freq) {
-                            $formateddata = array(get_string('questionfreq', 'scormreport_trends', $interaction),
-                                                  " - <b>$element</b>", $value, $freq);
-                            $table->add_data($formateddata);
-                        }
-                    }
-                }
-                $table->finish_output();
-            } // End of generating output.
+            self::display_sco_table($sco, $attempts);
         }
         return true;
     }
@@ -182,5 +132,59 @@ class report extends \mod_scorm\report {
         }
 
         return $allowedlist;
+    }
+
+    protected function display_sco_table($sco, $attempts) {
+        // Determine maximum number to loop through.
+        $loop = self::get_sco_question_count($sco->id);
+
+        $table = new table('mod-scorm-trends-report-'.$sco->id);
+
+        for ($i = 0; $i < $loop; $i++) {
+            $rowdata = array(
+                'type' => array(),
+                'student_response' => array(),
+                'result' => array());
+            foreach ($attempts as $attempt) {
+                if ($trackdata = scorm_get_tracks($sco->id, $attempt->userid, $attempt->attempt)) {
+                    foreach ($trackdata as $element => $value) {
+                        if (stristr($element, "cmi.interactions_$i.type") !== false) {
+                            if (isset($rowdata['type'][$value])) {
+                                $rowdata['type'][$value]++;
+                            } else {
+                                $rowdata['type'][$value] = 1;
+                            }
+                        } else if (stristr($element, "cmi.interactions_$i.student_response") !== false) {
+                            if (isset($rowdata['student_response'][$value])) {
+                                $rowdata['student_response'][$value]++;
+                            } else {
+                                $rowdata['student_response'][$value] = 1;
+                            }
+                        } else if (stristr($element, "cmi.interactions_$i.result") !== false) {
+                            if (isset($rowdata['result'][$value])) {
+                                $rowdata['result'][$value]++;
+                            } else {
+                                $rowdata['result'][$value] = 1;
+                            }
+                        }
+                    }
+                }
+            } // End of foreach loop of attempts.
+            $tabledata[] = $rowdata;
+        }// End of foreach loop of interactions loop
+        // Format data for tables and generate output.
+        $formateddata = array();
+        if (!empty($tabledata)) {
+            foreach ($tabledata as $interaction => $rowinst) {
+                foreach ($rowinst as $element => $data) {
+                    foreach ($data as $value => $freq) {
+                        $formateddata = array(get_string('questionfreq', 'scormreport_trends', $interaction),
+                            " - <b>$element</b>", $value, $freq);
+                        $table->add_data($formateddata);
+                    }
+                }
+            }
+            $table->finish_output();
+        } // End of generating output.
     }
 }
