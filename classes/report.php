@@ -67,8 +67,8 @@ class report extends \mod_scorm\report {
         $from = 'FROM {scorm_scoes_track} st ';
         $where = ' WHERE st.userid ' .$usql. ' and st.scoid = ?';
 
-        $scoeswhere = "WHERE scorm = :scorm AND launch != ''";
-        $scoes = $DB->get_records_select('scorm_scoes', $scoeswhere, array("scorm" => $scorm->id), '', 'id');
+        $scoeswhere = "scorm = :scorm AND launch != ''";
+        $scoes = $DB->get_records_select('scorm_scoes', $scoeswhere, array("scorm" => $scorm->id), 'id');
         foreach ($scoes as $sco) {
             echo $OUTPUT->heading($sco->title);
             $sqlargs = array_merge($params, array($sco->id));
@@ -134,12 +134,49 @@ class report extends \mod_scorm\report {
         return $allowedlist;
     }
 
-    protected function display_sco_table($sco, $attempts) {
-        // Determine maximum number to loop through.
-        $loop = self::get_sco_question_count($sco->id);
+    /**
+     * Display table for a given sco.
+     *
+     * @param $sco
+     * @param $attempts
+     * @return bool
+     */
+    protected static function display_sco_table($sco, $attempts) {
+
+        $tabledata = self::get_tabledata($sco, $attempts);
+        if (empty($tabledata)) {
+            return true;
+        }
 
         $table = new table('mod-scorm-trends-report-'.$sco->id);
 
+        // Format data for tables and generate output.
+        foreach ($tabledata as $interaction => $rowinst) {
+            foreach ($rowinst as $element => $data) {
+                foreach ($data as $value => $freq) {
+                    $formateddata = array(get_string('questionfreq', 'scormreport_trends', $interaction),
+                        " - <b>$element</b>", $value, $freq);
+                    $table->add_data($formateddata);
+                }
+            }
+        }
+        $table->finish_output();
+        // End of generating output.
+        return true;
+    }
+
+    /**
+     * Get data for table.
+     *
+     * @param $sco
+     * @param $attempts
+     * @return array
+     */
+    protected static function get_tabledata($sco, $attempts) {
+        // Determine maximum number to loop through.
+        $loop = self::get_sco_question_count($sco->id);
+
+        $tabledata = [];
         for ($i = 0; $i < $loop; $i++) {
             $rowdata = array(
                 'type' => array(),
@@ -172,19 +209,6 @@ class report extends \mod_scorm\report {
             } // End of foreach loop of attempts.
             $tabledata[] = $rowdata;
         }// End of foreach loop of interactions loop
-        // Format data for tables and generate output.
-        $formateddata = array();
-        if (!empty($tabledata)) {
-            foreach ($tabledata as $interaction => $rowinst) {
-                foreach ($rowinst as $element => $data) {
-                    foreach ($data as $value => $freq) {
-                        $formateddata = array(get_string('questionfreq', 'scormreport_trends', $interaction),
-                            " - <b>$element</b>", $value, $freq);
-                        $table->add_data($formateddata);
-                    }
-                }
-            }
-            $table->finish_output();
-        } // End of generating output.
+        return $tabledata;
     }
 }
