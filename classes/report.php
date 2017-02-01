@@ -46,7 +46,7 @@ class report extends \mod_scorm\report {
         global $DB, $OUTPUT, $PAGE;
 
         // Groups are being used, Display a form to select current group.
-        if ($groupmode = groups_get_activity_groupmode($cm)) {
+        if (groups_get_activity_groupmode($cm)) {
                 groups_print_activity_menu($cm, new \moodle_url($PAGE->url));
         }
 
@@ -127,7 +127,8 @@ class report extends \mod_scorm\report {
             $allowedlist = empty($students) ? array() : array_keys($students);
         } else {
             // All users who can attempt scoes and who are in the currently selected group.
-            $groupstudents = get_users_by_capability($contextmodule, 'mod/scorm:savetrack', 'u.id', '', '', '', $currentgroup, '', false);
+            $groupstudents = get_users_by_capability($contextmodule, 'mod/scorm:savetrack',
+                                'u.id', '', '', '', $currentgroup, '', false);
             $allowedlist = empty($groupstudents) ? array() : array_keys($groupstudents);
         }
 
