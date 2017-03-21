@@ -29,9 +29,8 @@ require_once($CFG->libdir . '/tablelib.php');
 /**
  * Table log class for displaying logs.
  *
- * @since      Moodle 2.7
- * @package    report_loglive
- * @copyright  2014 onwards Ankit Agarwal <ankit.agrr@gmail.com>
+ * @package    scormreport_trends
+ * @copyright  2017 onwards Ankit Agarwal <ankit.agrr@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class table extends \flexible_table {

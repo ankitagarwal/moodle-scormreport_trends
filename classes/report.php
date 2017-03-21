@@ -40,6 +40,7 @@ class report extends \mod_scorm\report {
      * @param \stdClass $cm - full course_module object
      * @param \stdClass $course - full course object
      * @param string $download - type of download being requested
+     *
      * @return bool true on success
      */
     public function display($scorm, $cm, $course, $download) {
@@ -82,6 +83,7 @@ class report extends \mod_scorm\report {
      * Returns The maximum numbers of Questions associated with a Sco object
      *
      * @param int $scoid Sco ID
+     *
      * @return int an integer representing the question count
      */
     protected static function get_sco_question_count($scoid) {
@@ -111,7 +113,8 @@ class report extends \mod_scorm\report {
     /**
      * Get list of students allowed.
      *
-     * @param $cm
+     * @param Object $cm course module
+     *
      * @return array
      */
     protected static function get_students_allowedlist($cm) {
@@ -138,8 +141,9 @@ class report extends \mod_scorm\report {
     /**
      * Display table for a given sco.
      *
-     * @param $sco
-     * @param $attempts
+     * @param Object $sco Sco object.
+     * @param array $attempts Array of attempts.
+     *
      * @return bool
      */
     protected static function display_sco_table($sco, $attempts) {
@@ -169,9 +173,10 @@ class report extends \mod_scorm\report {
     /**
      * Get data for table.
      *
-     * @param $sco
-     * @param $attempts
-     * @return array
+     * @param Object $sco Sco object.
+     * @param array $attempts Array of attempts.
+     *
+     * @return array table data.
      */
     protected static function get_tabledata($sco, $attempts) {
         // Determine maximum number to loop through.
