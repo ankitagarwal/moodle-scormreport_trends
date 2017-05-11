@@ -22,6 +22,7 @@ Change log
 * 2014051204 - Release for Moodle 2.8 - 1.2 (Use autoloading, code cleanup, remove reportlib.php)
 * 2017013100 - Major code cleanup, remove deprecated stuff, travis support, fixed travis detected issues - 1.3
 * 2017032100 - Minor code style fixes - 1.4
+* 2017051100 - Release for Moodle 3.3 - 1.5
 
 About Author
 =====================
