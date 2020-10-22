@@ -24,6 +24,7 @@ Change log
 * 2017032100 - Minor code style fixes - 1.4
 * 2017051100 - Release for Moodle 3.3 - 1.5
 * 2019092300 - Release for Moodle 3.7 - 2.0
+* 2020102200 - Release for Moodle 3.9 - 3.0
 
 About Author
 =====================
